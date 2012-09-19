@@ -1,0 +1,88 @@
+#! /bin/bash
+###########################################################################
+##                                                                       ##
+##                               OCamlPP                                 ##
+##                                                                       ##
+##                            Benoit Vaugon                              ##
+##                                                                       ##
+##    This file is distributed under the terms of the CeCILL license.    ##
+##    See file LICENSE-en.                                               ##
+##                                                                       ##
+###########################################################################
+
+function error () {
+    echo "$@" 1>&2
+    exit 1
+}
+
+function usage () {
+    echo "$@" 1>&2
+    error "Usage: $0 [ -prefix <dir> ] [ -bindir <dir> ] [ -mandir <dir> ]"
+}
+
+function check_command () {
+    which "$1" > /dev/null
+    if [ $? -ne 0 ]; then
+	error "Error: \"$1\" not installed"
+    fi
+}
+
+###
+
+check_command "ocamlbuild"
+check_command "mkdir"
+check_command "pwd"
+check_command "cp"
+check_command "rm"
+
+###
+
+mkdir -p bin etc
+
+###
+
+OCAMLBUILD=$(which ocamlbuild)
+VERSION=$(cat VERSION)
+PWD=$(pwd)
+
+###
+
+BINDIR=/usr/local/bin
+MANDIR=/usr/local/man
+
+while [ $# -ne 0 ]; do
+    case "$1" in
+	-bindir)   BINDIR="$2"; shift ;;
+	-mandir)   MANDIR="$2"; shift ;;
+	-prefix)
+	    BINDIR="$2"/bin
+	    MANDIR="$2"/man
+	    shift;;
+	*)
+	usage "Don't know what to do with \"$1\""
+    esac
+    shift
+done
+
+###
+
+echo "\
+VERSION = $VERSION
+
+OCAMLBUILD = $OCAMLBUILD -cflags -w,Ae,-warn-error,A -lflags -w,Ae,-warn-error,A -no-links -classic-display
+
+BINDIR = $BINDIR
+MAN1DIR = $MANDIR/man1
+
+" > etc/Makefile.conf
+
+###
+
+echo "\
+let version = \"$VERSION\";;
+
+" > etc/config.ml
+
+###
+
+echo "** OCamlPP configuration completed successfully **"
