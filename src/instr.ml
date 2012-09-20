@@ -445,7 +445,7 @@ let string_of_bc bc =
     | Restart           -> Printf.sprintf "RESTART"
     | Grab n            -> Printf.sprintf "GRAB %d" n
     | Closure (n,ptr)   -> Printf.sprintf "CLOSURE %d %d" n ptr.pointed.addr
-    | Closurerec (f,v,{pointed={addr=a; _};_},t) ->
+    | Closurerec (f,v,{pointed={addr=a; bc=_;is_pointed=_}; ofs=_},t) ->
         let b = Buffer.create 16 in
           Printf.bprintf b "CLOSUREREC %d %d %d [" f v a;
           Array.iter(fun ptr -> Printf.bprintf b " %d " ptr.pointed.addr) t;
