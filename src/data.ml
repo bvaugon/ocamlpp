@@ -112,11 +112,11 @@ let print oc data =
           print_elems (i + 1) others;
       | [] -> ()
   in
-    Printf.fprintf oc "
-*********************
-***  Global data  ***
-*********************
-
+    Printf.fprintf oc "\n\
+*********************\n\
+***  Global data  ***\n\
+*********************\n\
+\n\
 ";
     print_elems 0 data
 ;;

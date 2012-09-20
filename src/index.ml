@@ -69,11 +69,11 @@ let print oc index =
     Printf.fprintf oc "%s %8d %8d\n" (string_of_sname name) offset length
   in
     Printf.fprintf oc "\
-*******************
-*****  Index  *****
-*******************
-
-<name>    <@>   <size>
+*******************\n\
+*****  Index  *****\n\
+*******************\n\
+\n\
+<name>    <@>   <size>\n\
 ";
     List.iter print_descr index
 ;;

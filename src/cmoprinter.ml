@@ -80,21 +80,21 @@ let print_compilation_unit oc {
   cu_debugsize = cu_debugsize;
 } =
   fprintf oc "\
-**************************
-***  Compilation Unit  ***
-**************************
-
-{
-  cu_name = %S;
-  cu_pos = %d;
-  cu_codesize = %d;
-  cu_reloc = %a;
-  cu_imports = %a;
-  cu_primitives = %a;
-  cu_force_link = %b;
-  cu_debug = %d;
-  cu_debugsize = %d;
-}
+**************************\n\
+***  Compilation Unit  ***\n\
+**************************\n\
+\n\
+{\n\
+  cu_name = %S;\n\
+  cu_pos = %d;\n\
+  cu_codesize = %d;\n\
+  cu_reloc = %a;\n\
+  cu_imports = %a;\n\
+  cu_primitives = %a;\n\
+  cu_force_link = %b;\n\
+  cu_debug = %d;\n\
+  cu_debugsize = %d;\n\
+}\n\
 " cu_name cu_pos cu_codesize
     (print_vlist 2
        (fun oc (ri, n) -> fprintf oc "(%a, %d)" print_reloc_info ri n))

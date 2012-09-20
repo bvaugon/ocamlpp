@@ -106,11 +106,11 @@ let parse ic index =
 ;;
 
 let print oc code =
-  Printf.fprintf oc "
-******************
-***  Bytecode  ***
-******************
-
+  Printf.fprintf oc "\n\
+******************\n\
+***  Bytecode  ***\n\
+******************\n\
+\n\
 ";
   Array.iteri (fun i -> Printf.fprintf oc "%-5d   %a\n" i print_instr) code;
 ;;

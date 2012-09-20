@@ -39,11 +39,11 @@ let parse ic index =
 ;;
 
 let print oc prim =
-  Printf.fprintf oc "
-*******************
-***  Externals  ***
-*******************
-
+  Printf.fprintf oc "\n\
+*******************\n\
+***  Externals  ***\n\
+*******************\n\
+\n\
 ";
   Array.iteri (Printf.fprintf oc "%-3d   %s\n") prim
 ;;
