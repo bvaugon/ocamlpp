@@ -31,6 +31,8 @@ try
   let index = Index.parse ic in Index.print stdout index;
   let prims = Prim.parse ic index in Prim.print stdout prims;
   let data = Data.parse ic index in Data.print stdout data;
-  let code = Code.parse ic index in Code.print stdout code;
+  let code = Code.parse ic index in
+  let globnames = Globals.find (Globals.Glob (prims, Array.of_list data)) in
+  Code.print globnames stdout code;
   close_in ic;
 with Failure msg -> error msg;;

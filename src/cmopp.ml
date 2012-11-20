@@ -26,5 +26,7 @@ if Sys.argv.(1) = "-version" then (
   exit 0;
 );;
 
-try Cmoprinter.print stdout (Cmoparser.parse Sys.argv.(1));
+try
+  let ((compunit,_code) as cmo) = Cmoparser.parse Sys.argv.(1) in
+  Cmoprinter.print (Globals.find (Globals.Reloc compunit)) stdout cmo;
 with Failure msg -> error msg;

@@ -429,7 +429,7 @@ let opcode_of_bc bc =
     | Break -> 145
 ;;
 
-let string_of_bc bc =
+let string_of_bc globname bc =
   match bc with
     | Acc n             -> Printf.sprintf "ACC %d" n
     | Push              -> Printf.sprintf "PUSH"
@@ -455,9 +455,11 @@ let string_of_bc bc =
     | Offsetclosure n       -> Printf.sprintf "OFFSETCLOSURE %d" n
     | Pushoffsetclosurem2   -> Printf.sprintf "PUSHOFFSETCLOSUREM2"
     | Pushoffsetclosure n   -> Printf.sprintf "PUSHOFFSETCLOSURE %d" n
-    | Getglobal n           -> Printf.sprintf "GETGLOBAL %d" n
-    | Pushgetglobal n       -> Printf.sprintf "PUSHGETGLOBAL %d" n
-    | Getglobalfield (n,p)  -> Printf.sprintf "GETGLOBALFIELD %d %d"n p
+    | Getglobal n           ->
+        Printf.sprintf "GETGLOBAL %d (* %s *)" n (globname Globals.Global n)
+    | Pushgetglobal n       ->
+        Printf.sprintf "PUSHGETGLOBAL %d (* %s *)" n (globname Globals.Global n)
+    | Getglobalfield (n,p)  -> Printf.sprintf "GETGLOBALFIELD %d %d" n p
     | Pushgetglobalfield (n,p) -> Printf.sprintf "PUSHGETGLOBALFIELD %d %d" n p
     | Setglobal n       -> Printf.sprintf "SETGLOBAL %d" n
     | Atom n            -> Printf.sprintf "ATOM %d" n
@@ -490,7 +492,9 @@ let string_of_bc bc =
     | Poptrap           -> Printf.sprintf "POPTRAP"
     | Raise             -> Printf.sprintf "RAISE"
     | Checksignals      -> Printf.sprintf "CHECKSIGNALS"
-    | Ccall (n, ind)    -> Printf.sprintf "CCALL %d %d" n ind
+    | Ccall (n, ind)    ->
+        Printf.sprintf "CCALL %d %d (* %s() *)" n ind
+          (globname Globals.Primitive ind)
     | Const n           -> Printf.sprintf "CONST %d" n
     | Pushconst n       -> Printf.sprintf "PUSHCONST %d" n
     | Negint            -> Printf.sprintf "NEGINT"
@@ -532,9 +536,9 @@ let string_of_bc bc =
     | Break             -> Printf.sprintf "BREAK"
 ;;
 
-let print_instr oc instr =
+let print_instr global_info oc instr =
   Printf.fprintf oc "@ = %-5d    %s" (instr.addr)
-    (string_of_bc instr.bc);
+    (string_of_bc (fun req slot -> global_info req slot instr.addr) instr.bc);
 ;;
 
 let name_of_opcode opcode =

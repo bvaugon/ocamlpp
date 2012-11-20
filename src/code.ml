@@ -105,12 +105,14 @@ let parse ic index =
     parse_segment ic offset length
 ;;
 
-let print oc code =
+let print globnames oc code =
   Printf.fprintf oc "\n\
 ******************\n\
 ***  Bytecode  ***\n\
 ******************\n\
 \n\
 ";
-  Array.iteri (fun i -> Printf.fprintf oc "%-5d   %a\n" i print_instr) code;
+  Array.iteri
+    (fun i -> Printf.fprintf oc "%-5d   %a\n" i (print_instr globnames))
+    code;
 ;;

@@ -22,6 +22,55 @@ type elem =
   | Out_of_heap of int
 ;;
 
+let string_of_string str =
+  let maxl = 32 in
+  if String.length str <= maxl then Printf.sprintf "%S" str
+  else Printf.sprintf "%S" ((String.sub str 0 maxl)^"...")
+
+let string_of_elem e =
+  let rec show depth elem =
+  if depth > 1 then "..." else
+  match elem with
+  | String str -> string_of_string str
+  | Float f    -> Printf.sprintf "%f" f
+  | Floats tbl -> begin match Array.length tbl with
+    | 0 -> "[| |]"
+    | 1 -> Printf.sprintf "[| %f |]" tbl.(0)
+    | _ -> Printf.sprintf "[| %f; ... |]" tbl.(0)
+  end
+  | Int n    -> Printf.sprintf "%d" n
+  | Int_32 n -> Printf.sprintf "%ld : Int32.t" n
+  | Int_64 n -> Printf.sprintf "%Ld : Int64.t" n
+  | Custom _tab -> "custom [| ... |]"
+  | Block (tab, tag) -> begin match Array.length tab with
+    | 0 -> Printf.sprintf "[%d:%d| ]" tag 0
+    | 1 ->
+        Printf.sprintf "[%d:%d| %a ]" tag 1
+          (fun () -> show (depth + 1)) tab.(0)
+    | 2 ->
+        Printf.sprintf "[%d:%d| %a, %a ]" tag 2
+          (fun () -> show (depth + 1)) tab.(0)
+      (fun () -> show (depth + 1)) tab.(1)
+    | n ->
+        Printf.sprintf "[%d:%d| %a, %a, ... ]" tag n
+          (fun () -> show (depth + 1)) tab.(0)
+          (fun () -> show (depth + 1)) tab.(1)
+  end
+  | Closure tab -> begin match Array.length tab with
+    | 0 -> assert false
+    | 1 -> Printf.sprintf "clo[%a]" (fun () -> show (depth + 1)) tab.(0)
+    | 2 -> Printf.sprintf "clo[%a, %a]" (fun () -> show (depth + 1)) tab.(0)
+      (fun () -> show (depth + 1)) tab.(1)
+    | _ ->
+        Printf.sprintf "clo[%a, %a, ...]"
+          (fun () -> show (depth + 1)) tab.(0)
+          (fun () -> show (depth + 1)) tab.(1)
+  end
+  | Out_of_heap p -> Printf.sprintf "@0x%08x" p
+  in
+  show 0 e
+;;
+
 let parse ic index =
   let (offset, _) =
     try Index.find_section index Index.Data
