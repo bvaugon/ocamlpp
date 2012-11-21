@@ -11,9 +11,12 @@
 
 open Instr
 
-let compute_ptrs code =
-  let nb_instr = Array.length code in
-  let nb_bc = code.(nb_instr - 1).addr + 1 in
+module Int = struct type t = int let compare (x : t) (y : t) = compare x y end;;
+module ISet = Set.Make (Int);;
+
+let compute_ptrs instrs =
+  let nb_instr = Array.length instrs in
+  let nb_bc = instrs.(nb_instr - 1).addr + 1 in
   let indirect = Array.make nb_bc None in
   let grep_instr instr =
     indirect.(instr.addr) <- Some instr;
@@ -49,8 +52,22 @@ let compute_ptrs code =
 
         | _ -> ();
   in
-    Array.iter grep_instr code;
-    Array.iter affect_ptr code;
+    Array.iter grep_instr instrs;
+    Array.iter affect_ptr instrs;
+;;
+
+let compute_function_starts instrs =
+  let f acc instr =
+    match instr.bc with
+      | Closure (_, ptr) ->
+        ISet.add ptr.pointed.addr acc
+      | Closurerec (_, _, ptr, ptrs) ->
+        Array.fold_left (fun acc' ptr' -> ISet.add ptr'.pointed.addr acc')
+          (ISet.add ptr.pointed.addr acc) ptrs
+      | _ ->
+        acc
+  in
+  Array.fold_left f ISet.empty instrs
 ;;
 
 let parse_segment ic offset length =
@@ -85,16 +102,16 @@ word size is %d" ws)
                 f (i + 1) (instr :: acc)
           | None -> acc
     in
-    let code = Array.of_list (f 0 []) in
-    let nb_instr = Array.length code in
+    let instrs = Array.of_list (f 0 []) in
+    let nb_instr = Array.length instrs in
       for i = 0 to nb_instr / 2 - 1 do
         let s = nb_instr - i - 1 in
-        let tmp = code.(i) in
-          code.(i) <- code.(s);
-          code.(s) <- tmp;
+        let tmp = instrs.(i) in
+          instrs.(i) <- instrs.(s);
+          instrs.(s) <- tmp;
       done;
-      compute_ptrs code;
-      code
+      compute_ptrs instrs; 
+      (instrs, compute_function_starts instrs)
 ;;
 
 let parse ic index =
@@ -102,17 +119,23 @@ let parse ic index =
     try Index.find_section index Index.Code
     with Not_found -> failwith "code section not found"
   in
-    parse_segment ic offset length
+  parse_segment ic offset length
 ;;
 
-let print globnames oc code =
+let print globnames oc (instrs, fstarts) =
+  let f i instr =
+    begin match instr.bc with
+      | Grab _ -> ()
+      | Restart -> Printf.fprintf oc "\n"
+      | _ -> if ISet.mem instr.addr fstarts then Printf.fprintf oc "\n"
+    end;
+    Printf.fprintf oc "%-5d  %a\n" i (print_instr globnames) instr;
+  in
   Printf.fprintf oc "\n\
 ******************\n\
 ***  Bytecode  ***\n\
 ******************\n\
 \n\
 ";
-  Array.iteri
-    (fun i -> Printf.fprintf oc "%-5d  %a\n" i (print_instr globnames))
-    code;
+  Array.iteri f instrs;
 ;;
