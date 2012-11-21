@@ -26,13 +26,13 @@ let string_of_constant c = match c with
 | Const_char c -> Printf.sprintf "%C" c
 | Const_string str -> string_of_string str
 | Const_float str -> Printf.sprintf "%s" str
-| Const_int32 n -> Printf.sprintf "%ld : Int32.t" n
-| Const_int64 n -> Printf.sprintf "%Ld : Int64.t" n
+| Const_int32 n -> Printf.sprintf "%ldl" n
+| Const_int64 n -> Printf.sprintf "%LdL" n
 | Const_nativeint ni -> Printf.sprintf "%nx : nativeint" ni
 
 let string_of_structured_constant sc =
   let rec show depth sc =
-    if depth > 1 then "..." else
+    if depth > 2 then "..." else
       match sc with
       | Const_base c -> string_of_constant c
       | Const_pointer p -> Printf.sprintf "ptr:%n" p
@@ -52,7 +52,7 @@ let string_of_structured_constant sc =
       | Const_float_array strlist -> begin match strlist with
         | [] -> "[| |]"
         | [s] -> Printf.sprintf "[| %s |]" s
-        | [s1;s2] -> Printf.sprintf "[| %s; %s |]" s1 s2
+        | [s1; s2] -> Printf.sprintf "[| %s; %s |]" s1 s2
         | s1 :: s2 :: _ -> Printf.sprintf "[| %s; %s; ... |]" s1 s2
       end
       | Const_immstring str -> Printf.sprintf "immutable:%S" str

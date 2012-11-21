@@ -113,6 +113,6 @@ let print globnames oc code =
 \n\
 ";
   Array.iteri
-    (fun i -> Printf.fprintf oc "%-5d   %a\n" i (print_instr globnames))
+    (fun i -> Printf.fprintf oc "%-5d  %a\n" i (print_instr globnames))
     code;
 ;;

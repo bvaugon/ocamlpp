@@ -16,6 +16,7 @@ type elem =
   | Int of int
   | Int_32 of Int32.t
   | Int_64 of Int64.t
+  | Int_nat of Nativeint.t
   | Custom of int array
   | Block of elem array * int
   | Closure of elem array
@@ -23,7 +24,7 @@ type elem =
 ;;
 
 let string_of_string str =
-  let maxl = 32 in
+  let maxl = 28 in
   if String.length str <= maxl then Printf.sprintf "%S" str
   else Printf.sprintf "%S" ((String.sub str 0 maxl)^"...")
 
@@ -39,8 +40,9 @@ let string_of_elem e =
     | _ -> Printf.sprintf "[| %f; ... |]" tbl.(0)
   end
   | Int n    -> Printf.sprintf "%d" n
-  | Int_32 n -> Printf.sprintf "%ld : Int32.t" n
-  | Int_64 n -> Printf.sprintf "%Ld : Int64.t" n
+  | Int_32 n -> Printf.sprintf "%ldl" n
+  | Int_64 n -> Printf.sprintf "%LdL" n
+  | Int_nat n -> Printf.sprintf "%ndn" n
   | Custom _tab -> "custom [| ... |]"
   | Block (tab, tag) -> begin match Array.length tab with
     | 0 -> Printf.sprintf "[%d:%d| ]" tag 0
@@ -92,6 +94,8 @@ let parse ic index =
                 Int_32 (Obj.obj obj)
               else if key = Obj.field (Obj.repr 0L) 0 then
                 Int_64 (Obj.obj obj)
+              else if key = Obj.field (Obj.repr 0n) 0 then
+                Int_nat (Obj.obj obj)
               else
                 let size = Obj.size obj in
                 let tab = Array.make (4 * size) 0 in
@@ -129,8 +133,9 @@ let print oc data =
           Array.iter (Printf.fprintf oc " %f ") tbl;
           Printf.fprintf oc "|]";
       | Int n      -> Printf.fprintf oc "%d" n
-      | Int_32 n -> Printf.fprintf oc "%ld : Int32.t" n
-      | Int_64 n -> Printf.fprintf oc "%Ld : Int64.t" n
+      | Int_32 n -> Printf.fprintf oc "%ldl" n
+      | Int_64 n -> Printf.fprintf oc "%LdL" n
+      | Int_nat n -> Printf.fprintf oc "%ndn" n
       | Custom tab ->
           output_string oc "custom block: [| ";
           for i = 0 to Array.length tab - 1 do

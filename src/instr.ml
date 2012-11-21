@@ -537,7 +537,7 @@ let string_of_bc globname bc =
 ;;
 
 let print_instr global_info oc instr =
-  Printf.fprintf oc "@ = %-5d    %s" (instr.addr)
+  Printf.fprintf oc "@=%-5d  %s" (instr.addr)
     (string_of_bc (fun req slot -> global_info req slot instr.addr) instr.bc);
 ;;
 
