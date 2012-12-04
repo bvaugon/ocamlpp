@@ -11,6 +11,7 @@
 
 type instr = {
   addr : int;
+  mutable index : int;
   mutable bc : bc;
   mutable is_pointed : bool;
 }
@@ -110,7 +111,7 @@ and bc =
 let parse read =
   let read_ptr () = {
     ofs = read ();
-    pointed = { addr = -1 ; bc = Break ; is_pointed = false };
+    pointed = { addr = -1 ; index =0 ; bc = Break ; is_pointed = false };
   } in
   let opcode = read () in
     try
@@ -445,7 +446,7 @@ let string_of_bc globname bc =
     | Restart           -> Printf.sprintf "RESTART"
     | Grab n            -> Printf.sprintf "GRAB %d" n
     | Closure (n,ptr)   -> Printf.sprintf "CLOSURE %d %d" n ptr.pointed.addr
-    | Closurerec (f,v,{pointed={addr=a; bc=_;is_pointed=_}; ofs=_},t) ->
+    | Closurerec (f,v,{pointed={addr=a;index=_;bc=_;is_pointed=_}; ofs=_},t) ->
         let b = Buffer.create 16 in
           Printf.bprintf b "CLOSUREREC %d %d %d [" f v a;
           Array.iter(fun ptr -> Printf.bprintf b " %d " ptr.pointed.addr) t;

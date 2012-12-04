@@ -57,15 +57,31 @@ let compute_ptrs instrs =
 ;;
 
 let compute_function_starts instrs =
+  let add acc ptr =
+    let ind = ptr.pointed.index in
+    if ind > 0 then
+      match instrs.(ind - 1).bc with
+        | Branch ptr' when ptr'.pointed.index > ind ->
+          ISet.add ptr.pointed.addr (ISet.add ptr'.pointed.addr acc)
+        | Restart ->
+          if ind > 1 then
+            match instrs.(ind - 2).bc with
+              | Branch ptr' when ptr'.pointed.index > ind ->
+                ISet.add instrs.(ind - 1).addr (ISet.add ptr'.pointed.addr acc)
+              | _ ->
+                ISet.add instrs.(ind - 1).addr acc
+          else
+            acc
+        | _ ->
+          ISet.add ptr.pointed.addr acc
+    else
+      acc
+  in
   let f acc instr =
     match instr.bc with
-      | Closure (_, ptr) ->
-        ISet.add ptr.pointed.addr acc
-      | Closurerec (_, _, ptr, ptrs) ->
-        Array.fold_left (fun acc' ptr' -> ISet.add ptr'.pointed.addr acc')
-          (ISet.add ptr.pointed.addr acc) ptrs
-      | _ ->
-        acc
+      | Closure (_, ptr) -> add acc ptr
+      | Closurerec (_, _, ptr, ptrs) -> Array.fold_left add (add acc ptr) ptrs
+      | _ -> acc
   in
   Array.fold_left f ISet.empty instrs
 ;;
@@ -98,8 +114,13 @@ word size is %d" ws)
           with End_of_file -> None
         with
           | Some bc ->
-              let instr = { addr = addr; bc = bc; is_pointed = false; } in
-                f (i + 1) (instr :: acc)
+            let instr = {
+              addr = addr;
+              index = 0;
+              bc = bc;
+              is_pointed = false;
+            } in
+            f (i + 1) (instr :: acc)
           | None -> acc
     in
     let instrs = Array.of_list (f 0 []) in
@@ -111,6 +132,7 @@ word size is %d" ws)
           instrs.(s) <- tmp;
       done;
       compute_ptrs instrs; 
+      Array.iteri (fun i instr -> instr.index <- i) instrs;
       (instrs, compute_function_starts instrs)
 ;;
 
@@ -124,11 +146,7 @@ let parse ic index =
 
 let print globnames oc (instrs, fstarts) =
   let f i instr =
-    begin match instr.bc with
-      | Grab _ -> ()
-      | Restart -> Printf.fprintf oc "\n"
-      | _ -> if ISet.mem instr.addr fstarts then Printf.fprintf oc "\n"
-    end;
+    if ISet.mem instr.addr fstarts then Printf.fprintf oc "\n";
     Printf.fprintf oc "%-5d  %a\n" i (print_instr globnames) instr;
   in
   Printf.fprintf oc "\n\
