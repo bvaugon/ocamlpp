@@ -439,17 +439,17 @@ let string_of_bc globname bc =
     | Assign n          -> Printf.sprintf "ASSIGN %d" n
     | Envacc n          -> Printf.sprintf "ENVACC %d" n
     | Pushenvacc n      -> Printf.sprintf "PUSHENVACC %d" n
-    | Pushretaddr ptr   -> Printf.sprintf "PUSHRETADDR %d" ptr.pointed.addr
+    | Pushretaddr ptr   -> Printf.sprintf "PUSHRETADDR %d" ptr.pointed.index
     | Apply n           -> Printf.sprintf "APPLY %d" n
     | Appterm (n,s)     -> Printf.sprintf "APPTERM %d %d" n s
     | Return n          -> Printf.sprintf "RETURN %d" n
     | Restart           -> Printf.sprintf "RESTART"
     | Grab n            -> Printf.sprintf "GRAB %d" n
-    | Closure (n,ptr)   -> Printf.sprintf "CLOSURE %d %d" n ptr.pointed.addr
+    | Closure (n,ptr)   -> Printf.sprintf "CLOSURE %d %d" n ptr.pointed.index
     | Closurerec (f,v,{pointed={addr=a;index=_;bc=_;is_pointed=_}; ofs=_},t) ->
         let b = Buffer.create 16 in
           Printf.bprintf b "CLOSUREREC %d %d %d [" f v a;
-          Array.iter(fun ptr -> Printf.bprintf b " %d " ptr.pointed.addr) t;
+          Array.iter(fun ptr -> Printf.bprintf b " %d " ptr.pointed.index) t;
           Printf.bprintf b "]";
           Buffer.contents b
     | Offsetclosurem2       -> Printf.sprintf "OFFSETCLOSUREM2"
@@ -476,20 +476,20 @@ let string_of_bc globname bc =
     | Setvectitem       -> Printf.sprintf "SETVECTITEM"
     | Getstringchar     -> Printf.sprintf "GETSTRINGCHAR"
     | Setstringchar     -> Printf.sprintf "SETSTRINGCHAR"
-    | Branch ptr        -> Printf.sprintf "BRANCH %d" ptr.pointed.addr
-    | Branchif ptr      -> Printf.sprintf "BRANCHIF %d" ptr.pointed.addr
-    | Branchifnot ptr   -> Printf.sprintf "BRANCHIFNOT %d" ptr.pointed.addr
+    | Branch ptr        -> Printf.sprintf "BRANCH %d" ptr.pointed.index
+    | Branchif ptr      -> Printf.sprintf "BRANCHIF %d" ptr.pointed.index
+    | Branchifnot ptr   -> Printf.sprintf "BRANCHIFNOT %d" ptr.pointed.index
     | Switch (n, tab) ->
         let size_tag = n lsr 16 in
         let size_long = n land 0xFFFF in
         let b = Buffer.create 16 in
           Printf.bprintf b "SWITCH %d %d [" size_tag size_long;
           Array.iter
-            (fun ptr -> Printf.bprintf b " %d " ptr.pointed.addr) tab;
+            (fun ptr -> Printf.bprintf b " %d " ptr.pointed.index) tab;
           Printf.bprintf b "]";
           Buffer.contents b
     | Boolnot           -> Printf.sprintf "BOOLNOT"
-    | Pushtrap ptr      -> Printf.sprintf "PUSHTRAP %d" ptr.pointed.addr
+    | Pushtrap ptr      -> Printf.sprintf "PUSHTRAP %d" ptr.pointed.index
     | Poptrap           -> Printf.sprintf "POPTRAP"
     | Raise             -> Printf.sprintf "RAISE"
     | Checksignals      -> Printf.sprintf "CHECKSIGNALS"
@@ -520,16 +520,16 @@ let string_of_bc globname bc =
     | Offsetref ofs     -> Printf.sprintf "OFFSETREF %d" ofs
     | Isint             -> Printf.sprintf "ISINT"
     | Getmethod         -> Printf.sprintf "GETMETHOD"
-    | Beq (v,ptr)       -> Printf.sprintf "BEQ %d %d" v ptr.pointed.addr
-    | Bneq (v,ptr)      -> Printf.sprintf "BNEQ %d %d" v ptr.pointed.addr
-    | Blint (v,ptr)     -> Printf.sprintf "BLINT %d %d" v ptr.pointed.addr
-    | Bleint (v,ptr)    -> Printf.sprintf "BLEINT %d %d" v ptr.pointed.addr
-    | Bgtint (v,ptr)    -> Printf.sprintf "BGTINT %d %d" v ptr.pointed.addr
-    | Bgeint (v,ptr)    -> Printf.sprintf "BGEINT %d %d" v ptr.pointed.addr
+    | Beq (v,ptr)       -> Printf.sprintf "BEQ %d %d" v ptr.pointed.index
+    | Bneq (v,ptr)      -> Printf.sprintf "BNEQ %d %d" v ptr.pointed.index
+    | Blint (v,ptr)     -> Printf.sprintf "BLINT %d %d" v ptr.pointed.index
+    | Bleint (v,ptr)    -> Printf.sprintf "BLEINT %d %d" v ptr.pointed.index
+    | Bgtint (v,ptr)    -> Printf.sprintf "BGTINT %d %d" v ptr.pointed.index
+    | Bgeint (v,ptr)    -> Printf.sprintf "BGEINT %d %d" v ptr.pointed.index
     | Ultint            -> Printf.sprintf "ULTINT"
     | Ugeint            -> Printf.sprintf "UGEINT"
-    | Bultint (v,ptr)   -> Printf.sprintf "BULTINT %d %d" v ptr.pointed.addr
-    | Bugeint (v,ptr)   -> Printf.sprintf "BUGEINT %d %d" v ptr.pointed.addr
+    | Bultint (v,ptr)   -> Printf.sprintf "BULTINT %d %d" v ptr.pointed.index
+    | Bugeint (v,ptr)   -> Printf.sprintf "BUGEINT %d %d" v ptr.pointed.index
     | Getpubmet (v,ofs) -> Printf.sprintf "GETPUBMET %d %d" v ofs
     | Getdynmet         -> Printf.sprintf "GETDYNMET"
     | Stop              -> Printf.sprintf "STOP"
