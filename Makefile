@@ -25,16 +25,12 @@ config:
 install: all
 	mkdir -p "$(BINDIR)"
 	mkdir -p "$(MAN1DIR)"
-	cp bin/bcpp "$(BINDIR)/bcpp"
-	cp bin/cmopp "$(BINDIR)/cmopp"
-	cp man/bcpp.1.gz "$(MAN1DIR)/bcpp.1.gz"
-	cp man/cmopp.1.gz "$(MAN1DIR)/cmopp.1.gz"
+	cp bin/ocamlpp "$(BINDIR)/ocamlpp"
+	cp man/ocamlpp.1.gz "$(MAN1DIR)/ocamlpp.1.gz"
 
 uninstall:
-	rm -f "$(BINDIR)/bcpp"
-	rm -f "$(BINDIR)/cmopp"
-	rm -f "$(MAN1DIR)/bcpp.1.gz"
-	rm -f "$(MAN1DIR)/cmopp.1.gz"
+	rm -f "$(BINDIR)/ocamlpp"
+	rm -f "$(MAN1DIR)/ocamlpp.1.gz"
 
 etc/Makefile.conf:
 	@echo "You must run ./configure before" 1>&2

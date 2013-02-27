@@ -15,7 +15,8 @@ let error msg =
 ;;
 
 let usage () =
-  Printf.eprintf "Usage: %s [ -version ] <file.cmo>\n" Sys.argv.(0);
+  Printf.eprintf "Usage: %s [ -version ] (<file.cmo> | <file.byte>)\n"
+    Sys.argv.(0);
   exit 1;
 ;;
 
@@ -26,7 +27,19 @@ if Sys.argv.(1) = "-version" then (
   exit 0;
 );;
 
-try
-  let ((compunit,_code) as cmo) = Cmoparser.parse Sys.argv.(1) in
+begin try
+  let ((compunit, _code) as cmo) = Cmoparser.parse Sys.argv.(1) in
   Cmoprinter.print (Globals.find (Globals.Reloc compunit)) stdout cmo;
-with Failure msg -> error msg;
+with Cmoparser.Not_a_cmo -> begin try
+  let ic = open_in_bin Sys.argv.(1) in
+  let index = Index.parse ic in Index.print stdout index;
+  let prims = Prim.parse ic index in Prim.print stdout prims;
+  let data = Data.parse ic index in Data.print stdout data;
+  let code = Code.parse ic index in
+  let globnames = Globals.find (Globals.Glob (prims, Array.of_list data)) in
+  Code.print globnames stdout code;
+  close_in ic;
+with Index.Not_a_byte ->
+  error "not a bytecode executable file nor an OCaml object file"
+| Failure msg -> error msg end
+| Failure msg -> error msg end

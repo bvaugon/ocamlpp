@@ -40,15 +40,14 @@ Examples:
 
         make
 
-This builds bcpp and cmopp in the local directory ./bin/.
+This builds ocamlpp in the local directory ./bin/.
 
 
 3- You can now install the OCamlPP system. This will create the
-following commands (in the binary directory selected during
+following command (in the binary directory selected during
 autoconfiguration):
 
-        bcpp         an OCaml bytecode pretty-printer
-        cmopp        an OCaml .cmo pretty-printer
+        ocamlpp      an OCaml .byte and .cmo pretty-printer
 
 From the top directory, become superuser and do:
 

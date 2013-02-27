@@ -13,7 +13,7 @@ include ../etc/Makefile.conf
 
 BIN = ../bin
 SRCS = $(wildcard *.ml *.mli)
-TARGS = $(BIN)/bcpp $(BIN)/cmopp
+TARGS = $(BIN)/ocamlpp
 
 all: $(TARGS)
 

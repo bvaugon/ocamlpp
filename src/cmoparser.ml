@@ -9,6 +9,8 @@
 (*                                                                       *)
 (*************************************************************************)
 
+exception Not_a_cmo
+
 let cmo_magic_number = "Caml1999O007";;
 
 let parse file_name =
@@ -25,8 +27,8 @@ let parse file_name =
       in
       close_in ic;
       (compunit, code)
-    end else failwith "not an object file"
+    end else raise Not_a_cmo
   with
-    | End_of_file -> close_in ic; failwith "not an object file"
+    | End_of_file -> close_in ic; raise Not_a_cmo
     | x -> close_in ic; raise x
 ;;

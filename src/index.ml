@@ -9,6 +9,8 @@
 (*                                                                       *)
 (*************************************************************************)
 
+exception Not_a_byte
+
 type section_name = Code | Dlpt | Dlls | Prim | Data | Symb | Crcs | Dbug
 
 type t = (section_name * int * int) list
@@ -39,7 +41,7 @@ let parse ic =
   in
     seek_in ic (file_length - magic_size);
     really_input ic buf_magic 0 magic_size;
-    if buf_magic <> magic_str then failwith "invalid magic";
+    if buf_magic <> magic_str then raise Not_a_byte;
     let size = read_int (file_length - magic_size - 4) in
     let rec f ind next_offset rem =
       if ind <> -1 then
