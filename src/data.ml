@@ -89,15 +89,15 @@ let parse ic index =
           else if tag = Obj.int_tag then Int (Obj.obj obj)
           else if tag = Obj.out_of_heap_tag then Out_of_heap (Obj.obj obj)
           else if tag = Obj.custom_tag then
-            let key = Obj.field obj 0 in
-              if key = Obj.field (Obj.repr 0l) 0 then
-                Int_32 (Obj.obj obj)
-              else if key = Obj.field (Obj.repr 0L) 0 then
-                Int_64 (Obj.obj obj)
-              else if key = Obj.field (Obj.repr 0n) 0 then
-                Int_nat (Obj.obj obj)
-              else
-                let size = Obj.size obj in
+            try
+              let key = Obj.field obj 0 in
+              if Obj.tag key <> Obj.out_of_heap_tag then raise Exit
+              else if key = Obj.field (Obj.repr 0l) 0 then Int_32 (Obj.obj obj)
+              else if key = Obj.field (Obj.repr 0L) 0 then Int_64 (Obj.obj obj)
+              else if key = Obj.field (Obj.repr 0n) 0 then Int_nat (Obj.obj obj)
+              else raise Exit
+            with Exit ->
+              let size = Obj.size obj in
                 let tab = Array.make (4 * size) 0 in
                   for i = 0 to size - 1 do
                     let d = Obj.field obj i in
