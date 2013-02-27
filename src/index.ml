@@ -10,11 +10,11 @@
 (*************************************************************************)
 
 exception Not_a_byte
-
+  
 type section_name = Code | Dlpt | Dlls | Prim | Data | Symb | Crcs | Dbug
-
+    
 type t = (section_name * int * int) list
-
+    
 let parse ic =
   let magic_str = "Caml1999X008" in
   let magic_size = String.length magic_str in
@@ -39,26 +39,26 @@ let parse ic =
       | "DBUG" -> Dbug
       | _ -> failwith (Printf.sprintf "invalid section name: `%s'" buf4)
   in
-    seek_in ic (file_length - magic_size);
-    really_input ic buf_magic 0 magic_size;
-    if buf_magic <> magic_str then raise Not_a_byte;
-    let size = read_int (file_length - magic_size - 4) in
-    let rec f ind next_offset rem =
-      if ind <> -1 then
-        let descr_offset = file_length - magic_size - 4 - (size - ind) lsl 3 in
-        let name = read_name descr_offset in
-        let length = read_int (descr_offset + 4) in
-        let new_offset = next_offset - length in
-          f (ind - 1) new_offset ((name, new_offset, length) :: rem)
-      else
-        rem
-    in
-      f (size - 1) (file_length - magic_size - 4 - size lsl 3) []
+  seek_in ic (file_length - magic_size);
+  really_input ic buf_magic 0 magic_size;
+  if buf_magic <> magic_str then raise Not_a_byte;
+  let size = read_int (file_length - magic_size - 4) in
+  let rec f ind next_offset rem =
+    if ind <> -1 then
+      let descr_offset = file_length - magic_size - 4 - (size - ind) lsl 3 in
+      let name = read_name descr_offset in
+      let length = read_int (descr_offset + 4) in
+      let new_offset = next_offset - length in
+      f (ind - 1) new_offset ((name, new_offset, length) :: rem)
+    else
+      rem
+  in
+  f (size - 1) (file_length - magic_size - 4 - size lsl 3) []
 ;;
 
 let find_section index name =
   let (_, offset, length) = List.find (fun (n, _, _) -> name = n) index in
-    (offset, length)
+  (offset, length)
 ;;
 
 let print oc index =
@@ -70,12 +70,12 @@ let print oc index =
   let print_descr (name, offset, length) =
     Printf.fprintf oc "%s %8d %8d\n" (string_of_sname name) offset length
   in
-    Printf.fprintf oc "\
+  Printf.fprintf oc "\
 *******************\n\
 *****  Index  *****\n\
 *******************\n\
 \n\
 <name>    <@>   <size>\n\
 ";
-    List.iter print_descr index
+  List.iter print_descr index
 ;;

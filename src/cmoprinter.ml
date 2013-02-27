@@ -19,7 +19,7 @@ let print_list p oc l =
       | [ last ] -> p oc last
       | x :: rest -> fprintf oc "%a ; " p x; f rest
   in
-    fprintf oc "[ "; f l; fprintf oc "]";
+  fprintf oc "[ "; f l; fprintf oc "]";
 ;;
 
 let print_vlist i p oc l =
@@ -48,24 +48,24 @@ let rec print_structured_constant oc sc =
     | Const_base c -> fprintf oc "Const_base (%a)" print_constant c
     | Const_pointer n -> fprintf oc "Const_pointer %d" n
     | Const_block (n, scs) ->
-        fprintf oc "Const_block (%d, %a)" n
-          (print_list print_structured_constant) scs;
+      fprintf oc "Const_block (%d, %a)" n
+        (print_list print_structured_constant) scs;
     | Const_float_array fs ->
-        fprintf oc "Const_float_array %a"
-          (print_list (fun oc s -> fprintf oc "%S" s)) fs;
+      fprintf oc "Const_float_array %a"
+        (print_list (fun oc s -> fprintf oc "%S" s)) fs;
     | Const_immstring s -> fprintf oc "Const_immstring %S" s
 ;;
 
 let print_reloc_info oc ri =
   match ri with
     | Reloc_literal sc ->
-        fprintf oc "Reloc_literal (%a)" print_structured_constant sc
+      fprintf oc "Reloc_literal (%a)" print_structured_constant sc
     | Reloc_getglobal id ->
-        fprintf oc "Reloc_getglobal %a" print_ident id
+      fprintf oc "Reloc_getglobal %a" print_ident id
     | Reloc_setglobal id ->
-        fprintf oc "Reloc_setglobal %a" print_ident id
+      fprintf oc "Reloc_setglobal %a" print_ident id
     | Reloc_primitive s ->
-        fprintf oc "Reloc_primitive %S" s
+      fprintf oc "Reloc_primitive %S" s
 ;;
 
 let print_compilation_unit oc {

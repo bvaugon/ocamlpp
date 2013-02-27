@@ -114,170 +114,170 @@ let parse read =
     pointed = { addr = -1 ; index =0 ; bc = Break ; is_pointed = false };
   } in
   let opcode = read () in
-    try
-      match opcode with
-        | 0 ->   Acc 0
-        | 1 ->   Acc 1
-        | 2 ->   Acc 2
-        | 3 ->   Acc 3
-        | 4 ->   Acc 4
-        | 5 ->   Acc 5
-        | 6 ->   Acc 6
-        | 7 ->   Acc 7
-        | 8 ->   Acc (read ())
-        | 9 ->   Push
-        | 10 ->  Pushacc 0
-        | 11 ->  Pushacc 1
-        | 12 ->  Pushacc 2
-        | 13 ->  Pushacc 3
-        | 14 ->  Pushacc 4
-        | 15 ->  Pushacc 5
-        | 16 ->  Pushacc 6
-        | 17 ->  Pushacc 7
-        | 18 ->  Pushacc (read ())
-        | 19 ->  Pop (read ())
-        | 20 ->  Assign (read ())
-        | 21 ->  Envacc 1
-        | 22 ->  Envacc 2
-        | 23 ->  Envacc 3
-        | 24 ->  Envacc 4
-        | 25 ->  Envacc (read ())
-        | 26 ->  Pushenvacc 1
-        | 27 ->  Pushenvacc 2
-        | 28 ->  Pushenvacc 3
-        | 29 ->  Pushenvacc 4
-        | 30 ->  Pushenvacc (read ())
-        | 31 ->  Pushretaddr (read_ptr ())
-        | 32 ->  Apply (read ())
-        | 33 ->  Apply 1
-        | 34 ->  Apply 2
-        | 35 ->  Apply 3
-        | 36 ->  let n = read () in let s = read () in Appterm (n, s)
-        | 37 ->  Appterm (1, (read ()))
-        | 38 ->  Appterm (2, (read ()))
-        | 39 ->  Appterm (3, (read ()))
-        | 40 ->  Return (read ())
-        | 41 ->  Restart
-        | 42 ->  Grab (read ())
-        | 43 ->  let n = read () in let ptr = read_ptr () in Closure (n, ptr)
-        | 44 ->
-            let f = read () in
-            let v = read () in
-            let o = read_ptr () in
-            let t = if f = 1 then [||] else
-              let t = Array.make (f - 1) (read_ptr ()) in
-                for i = 1 to f - 2 do t.(i) <- read_ptr () done ; t
-            in
-              Closurerec (f, v, o, t)
-        | 45 ->  Offsetclosurem2
-        | 46 ->  Offsetclosure 0
-        | 47 ->  Offsetclosure 2
-        | 48 ->  Offsetclosure (read ())
-        | 49 ->  Pushoffsetclosurem2
-        | 50 ->  Pushoffsetclosure 0
-        | 51 ->  Pushoffsetclosure 2
-        | 52 ->  Pushoffsetclosure (read ())
-        | 53 ->  Getglobal (read ())
-        | 54 ->  Pushgetglobal (read ())
-        | 55 ->  let n = read () in let p = read () in Getglobalfield (n, p)
-        | 56 ->  let n = read () in let p = read () in Pushgetglobalfield (n, p)
-        | 57 ->  Setglobal (read ())
-        | 58 ->  Atom 0
-        | 59 ->  Atom (read ())
-        | 60 ->  Pushatom 0
-        | 61 ->  Pushatom (read ())
-        | 62 ->  let n = read () in let t = read () in Makeblock (n, t)
-        | 63 ->  Makeblock (1, read ())
-        | 64 ->  Makeblock (2, read ())
-        | 65 ->  Makeblock (3, read ())
-        | 66 ->  Makefloatblock (read ())
-        | 67 ->  Getfield 0
-        | 68 ->  Getfield 1
-        | 69 ->  Getfield 2
-        | 70 ->  Getfield 3
-        | 71 ->  Getfield (read ())
-        | 72 ->  Getfloatfield (read ())
-        | 73 ->  Setfield 0
-        | 74 ->  Setfield 1
-        | 75 ->  Setfield 2
-        | 76 ->  Setfield 3
-        | 77 ->  Setfield (read ())
-        | 78 ->  Setfloatfield (read ())
-        | 79 ->  Vectlength
-        | 80 ->  Getvectitem
-        | 81 ->  Setvectitem
-        | 82 ->  Getstringchar
-        | 83 ->  Setstringchar
-        | 84 ->  Branch (read_ptr ())
-        | 85 ->  Branchif (read_ptr ())
-        | 86 ->  Branchifnot (read_ptr ())
-        | 87 ->
-            let n = read () in
-            let size_tag = n lsr 16 in
-            let size_long = n land (1 lsl 16 - 1) in
-            let size = size_tag + size_long in
-            let tab = Array.init size (fun _ -> read_ptr ()) in
-              Switch (n, tab)
-        | 88 ->  Boolnot
-        | 89 ->  Pushtrap (read_ptr ())
-        | 90 ->  Poptrap
-        | 91 ->  Raise
-        | 92 ->  Checksignals
-        | 93 ->  Ccall (1, read ())
-        | 94 ->  Ccall (2, read ())
-        | 95 ->  Ccall (3, read ())
-        | 96 ->  Ccall (4, read ())
-        | 97 ->  Ccall (5, read ())
-        | 98 ->  let n = read () in let p = read () in Ccall (n, p)
-        | 99 ->  Const 0
-        | 100 -> Const 1
-        | 101 -> Const 2
-        | 102 -> Const 3
-        | 103 -> Const (read ())
-        | 104 -> Pushconst 0
-        | 105 -> Pushconst 1
-        | 106 -> Pushconst 2
-        | 107 -> Pushconst 3
-        | 108 -> Pushconst (read ())
-        | 109 -> Negint
-        | 110 -> Addint
-        | 111 -> Subint
-        | 112 -> Mulint
-        | 113 -> Divint
-        | 114 -> Modint
-        | 115 -> Andint
-        | 116 -> Orint
-        | 117 -> Xorint
-        | 118 -> Lslint
-        | 119 -> Lsrint
-        | 120 -> Asrint
-        | 121 -> Eq
-        | 122 -> Neq
-        | 123 -> Ltint
-        | 124 -> Leint
-        | 125 -> Gtint
-        | 126 -> Geint
-        | 127 -> Offsetint (read ())
-        | 128 -> Offsetref (read ())
-        | 129 -> Isint
-        | 130 -> Getmethod
-        | 131 -> let v = read () in let ptr = read_ptr () in Beq (v, ptr)
-        | 132 -> let v = read () in let ptr = read_ptr () in Bneq (v, ptr)
-        | 133 -> let v = read () in let ptr = read_ptr () in Blint (v, ptr)
-        | 134 -> let v = read () in let ptr = read_ptr () in Bleint (v, ptr)
-        | 135 -> let v = read () in let ptr = read_ptr () in Bgtint (v, ptr)
-        | 136 -> let v = read () in let ptr = read_ptr () in Bgeint (v, ptr)
-        | 137 -> Ultint
-        | 138 -> Ugeint
-        | 139 -> let v = read () in let ptr = read_ptr () in Bultint (v, ptr)
-        | 140 -> let v = read () in let ptr = read_ptr () in Bugeint (v, ptr)
-        | 141 -> let v = read () in let ofs = read () in Getpubmet (v, ofs)
-        | 142 -> Getdynmet
-        | 143 -> Stop
-        | 144 -> Event
-        | 145 -> Break
-        | _ -> failwith (Printf.sprintf "invalid opcode: %d" opcode)
-    with End_of_file -> failwith "unexpected end of code section"
+  try
+    match opcode with
+      | 0 ->   Acc 0
+      | 1 ->   Acc 1
+      | 2 ->   Acc 2
+      | 3 ->   Acc 3
+      | 4 ->   Acc 4
+      | 5 ->   Acc 5
+      | 6 ->   Acc 6
+      | 7 ->   Acc 7
+      | 8 ->   Acc (read ())
+      | 9 ->   Push
+      | 10 ->  Pushacc 0
+      | 11 ->  Pushacc 1
+      | 12 ->  Pushacc 2
+      | 13 ->  Pushacc 3
+      | 14 ->  Pushacc 4
+      | 15 ->  Pushacc 5
+      | 16 ->  Pushacc 6
+      | 17 ->  Pushacc 7
+      | 18 ->  Pushacc (read ())
+      | 19 ->  Pop (read ())
+      | 20 ->  Assign (read ())
+      | 21 ->  Envacc 1
+      | 22 ->  Envacc 2
+      | 23 ->  Envacc 3
+      | 24 ->  Envacc 4
+      | 25 ->  Envacc (read ())
+      | 26 ->  Pushenvacc 1
+      | 27 ->  Pushenvacc 2
+      | 28 ->  Pushenvacc 3
+      | 29 ->  Pushenvacc 4
+      | 30 ->  Pushenvacc (read ())
+      | 31 ->  Pushretaddr (read_ptr ())
+      | 32 ->  Apply (read ())
+      | 33 ->  Apply 1
+      | 34 ->  Apply 2
+      | 35 ->  Apply 3
+      | 36 ->  let n = read () in let s = read () in Appterm (n, s)
+      | 37 ->  Appterm (1, (read ()))
+      | 38 ->  Appterm (2, (read ()))
+      | 39 ->  Appterm (3, (read ()))
+      | 40 ->  Return (read ())
+      | 41 ->  Restart
+      | 42 ->  Grab (read ())
+      | 43 ->  let n = read () in let ptr = read_ptr () in Closure (n, ptr)
+      | 44 ->
+        let f = read () in
+        let v = read () in
+        let o = read_ptr () in
+        let t = if f = 1 then [||] else
+            let t = Array.make (f - 1) (read_ptr ()) in
+            for i = 1 to f - 2 do t.(i) <- read_ptr () done ; t
+        in
+        Closurerec (f, v, o, t)
+      | 45 ->  Offsetclosurem2
+      | 46 ->  Offsetclosure 0
+      | 47 ->  Offsetclosure 2
+      | 48 ->  Offsetclosure (read ())
+      | 49 ->  Pushoffsetclosurem2
+      | 50 ->  Pushoffsetclosure 0
+      | 51 ->  Pushoffsetclosure 2
+      | 52 ->  Pushoffsetclosure (read ())
+      | 53 ->  Getglobal (read ())
+      | 54 ->  Pushgetglobal (read ())
+      | 55 ->  let n = read () in let p = read () in Getglobalfield (n, p)
+      | 56 ->  let n = read () in let p = read () in Pushgetglobalfield (n, p)
+      | 57 ->  Setglobal (read ())
+      | 58 ->  Atom 0
+      | 59 ->  Atom (read ())
+      | 60 ->  Pushatom 0
+      | 61 ->  Pushatom (read ())
+      | 62 ->  let n = read () in let t = read () in Makeblock (n, t)
+      | 63 ->  Makeblock (1, read ())
+      | 64 ->  Makeblock (2, read ())
+      | 65 ->  Makeblock (3, read ())
+      | 66 ->  Makefloatblock (read ())
+      | 67 ->  Getfield 0
+      | 68 ->  Getfield 1
+      | 69 ->  Getfield 2
+      | 70 ->  Getfield 3
+      | 71 ->  Getfield (read ())
+      | 72 ->  Getfloatfield (read ())
+      | 73 ->  Setfield 0
+      | 74 ->  Setfield 1
+      | 75 ->  Setfield 2
+      | 76 ->  Setfield 3
+      | 77 ->  Setfield (read ())
+      | 78 ->  Setfloatfield (read ())
+      | 79 ->  Vectlength
+      | 80 ->  Getvectitem
+      | 81 ->  Setvectitem
+      | 82 ->  Getstringchar
+      | 83 ->  Setstringchar
+      | 84 ->  Branch (read_ptr ())
+      | 85 ->  Branchif (read_ptr ())
+      | 86 ->  Branchifnot (read_ptr ())
+      | 87 ->
+        let n = read () in
+        let size_tag = n lsr 16 in
+        let size_long = n land (1 lsl 16 - 1) in
+        let size = size_tag + size_long in
+        let tab = Array.init size (fun _ -> read_ptr ()) in
+        Switch (n, tab)
+      | 88 ->  Boolnot
+      | 89 ->  Pushtrap (read_ptr ())
+      | 90 ->  Poptrap
+      | 91 ->  Raise
+      | 92 ->  Checksignals
+      | 93 ->  Ccall (1, read ())
+      | 94 ->  Ccall (2, read ())
+      | 95 ->  Ccall (3, read ())
+      | 96 ->  Ccall (4, read ())
+      | 97 ->  Ccall (5, read ())
+      | 98 ->  let n = read () in let p = read () in Ccall (n, p)
+      | 99 ->  Const 0
+      | 100 -> Const 1
+      | 101 -> Const 2
+      | 102 -> Const 3
+      | 103 -> Const (read ())
+      | 104 -> Pushconst 0
+      | 105 -> Pushconst 1
+      | 106 -> Pushconst 2
+      | 107 -> Pushconst 3
+      | 108 -> Pushconst (read ())
+      | 109 -> Negint
+      | 110 -> Addint
+      | 111 -> Subint
+      | 112 -> Mulint
+      | 113 -> Divint
+      | 114 -> Modint
+      | 115 -> Andint
+      | 116 -> Orint
+      | 117 -> Xorint
+      | 118 -> Lslint
+      | 119 -> Lsrint
+      | 120 -> Asrint
+      | 121 -> Eq
+      | 122 -> Neq
+      | 123 -> Ltint
+      | 124 -> Leint
+      | 125 -> Gtint
+      | 126 -> Geint
+      | 127 -> Offsetint (read ())
+      | 128 -> Offsetref (read ())
+      | 129 -> Isint
+      | 130 -> Getmethod
+      | 131 -> let v = read () in let ptr = read_ptr () in Beq (v, ptr)
+      | 132 -> let v = read () in let ptr = read_ptr () in Bneq (v, ptr)
+      | 133 -> let v = read () in let ptr = read_ptr () in Blint (v, ptr)
+      | 134 -> let v = read () in let ptr = read_ptr () in Bleint (v, ptr)
+      | 135 -> let v = read () in let ptr = read_ptr () in Bgtint (v, ptr)
+      | 136 -> let v = read () in let ptr = read_ptr () in Bgeint (v, ptr)
+      | 137 -> Ultint
+      | 138 -> Ugeint
+      | 139 -> let v = read () in let ptr = read_ptr () in Bultint (v, ptr)
+      | 140 -> let v = read () in let ptr = read_ptr () in Bugeint (v, ptr)
+      | 141 -> let v = read () in let ofs = read () in Getpubmet (v, ofs)
+      | 142 -> Getdynmet
+      | 143 -> Stop
+      | 144 -> Event
+      | 145 -> Break
+      | _ -> failwith (Printf.sprintf "invalid opcode: %d" opcode)
+  with End_of_file -> failwith "unexpected end of code section"
 ;;
 
 let opcode_of_bc bc =
@@ -447,19 +447,19 @@ let string_of_bc globname bc =
     | Grab n            -> Printf.sprintf "GRAB %d" n
     | Closure (n,ptr)   -> Printf.sprintf "CLOSURE %d %d" n ptr.pointed.index
     | Closurerec (f,v,{pointed={addr=a;index=_;bc=_;is_pointed=_}; ofs=_},t) ->
-        let b = Buffer.create 16 in
-          Printf.bprintf b "CLOSUREREC %d %d %d [" f v a;
-          Array.iter(fun ptr -> Printf.bprintf b " %d " ptr.pointed.index) t;
-          Printf.bprintf b "]";
-          Buffer.contents b
+      let b = Buffer.create 16 in
+      Printf.bprintf b "CLOSUREREC %d %d %d [" f v a;
+      Array.iter(fun ptr -> Printf.bprintf b " %d " ptr.pointed.index) t;
+      Printf.bprintf b "]";
+      Buffer.contents b
     | Offsetclosurem2       -> Printf.sprintf "OFFSETCLOSUREM2"
     | Offsetclosure n       -> Printf.sprintf "OFFSETCLOSURE %d" n
     | Pushoffsetclosurem2   -> Printf.sprintf "PUSHOFFSETCLOSUREM2"
     | Pushoffsetclosure n   -> Printf.sprintf "PUSHOFFSETCLOSURE %d" n
     | Getglobal n           ->
-        Printf.sprintf "GETGLOBAL %d (* %s *)" n (globname Globals.Global n)
+      Printf.sprintf "GETGLOBAL %d (* %s *)" n (globname Globals.Global n)
     | Pushgetglobal n       ->
-        Printf.sprintf "PUSHGETGLOBAL %d (* %s *)" n (globname Globals.Global n)
+      Printf.sprintf "PUSHGETGLOBAL %d (* %s *)" n (globname Globals.Global n)
     | Getglobalfield (n,p)  -> Printf.sprintf "GETGLOBALFIELD %d %d" n p
     | Pushgetglobalfield (n,p) -> Printf.sprintf "PUSHGETGLOBALFIELD %d %d" n p
     | Setglobal n       -> Printf.sprintf "SETGLOBAL %d" n
@@ -480,22 +480,22 @@ let string_of_bc globname bc =
     | Branchif ptr      -> Printf.sprintf "BRANCHIF %d" ptr.pointed.index
     | Branchifnot ptr   -> Printf.sprintf "BRANCHIFNOT %d" ptr.pointed.index
     | Switch (n, tab) ->
-        let size_tag = n lsr 16 in
-        let size_long = n land 0xFFFF in
-        let b = Buffer.create 16 in
-          Printf.bprintf b "SWITCH %d %d [" size_tag size_long;
-          Array.iter
-            (fun ptr -> Printf.bprintf b " %d " ptr.pointed.index) tab;
-          Printf.bprintf b "]";
-          Buffer.contents b
+      let size_tag = n lsr 16 in
+      let size_long = n land 0xFFFF in
+      let b = Buffer.create 16 in
+      Printf.bprintf b "SWITCH %d %d [" size_tag size_long;
+      Array.iter
+        (fun ptr -> Printf.bprintf b " %d " ptr.pointed.index) tab;
+      Printf.bprintf b "]";
+      Buffer.contents b
     | Boolnot           -> Printf.sprintf "BOOLNOT"
     | Pushtrap ptr      -> Printf.sprintf "PUSHTRAP %d" ptr.pointed.index
     | Poptrap           -> Printf.sprintf "POPTRAP"
     | Raise             -> Printf.sprintf "RAISE"
     | Checksignals      -> Printf.sprintf "CHECKSIGNALS"
     | Ccall (n, ind)    ->
-        Printf.sprintf "CCALL %d %d (* %s() *)" n ind
-          (globname Globals.Primitive ind)
+      Printf.sprintf "CCALL %d %d (* %s() *)" n ind
+        (globname Globals.Primitive ind)
     | Const n           -> Printf.sprintf "CONST %d" n
     | Pushconst n       -> Printf.sprintf "PUSHCONST %d" n
     | Negint            -> Printf.sprintf "NEGINT"
