@@ -32,15 +32,20 @@ let print_ident oc { stamp = stamp; name = name; flags = flags } =
   fprintf oc "{ stamp = %d; name = %S; flags = %d }" stamp name flags
 ;;
 
+let print_string_option oc sopt =
+  match sopt with
+  | None   -> fprintf oc "None"
+  | Some s -> fprintf oc "Some %S" s
+
 let print_constant oc c =
   match c with
-    | Const_int n -> fprintf oc "Const_int %d" n
-    | Const_char c -> fprintf oc "Const_char %C" c
-    | Const_string s -> fprintf oc "Const_string %S" s
-    | Const_float f -> fprintf oc "Const_float %S" f
-    | Const_int32 n -> fprintf oc "Const_int32 %ldl" n
-    | Const_int64 n -> fprintf oc "Const_int64 %LdL" n
-    | Const_nativeint n -> fprintf oc "Const_nativeint %ndn" n
+    | Const_int n         -> fprintf oc "Const_int %d" n
+    | Const_char c        -> fprintf oc "Const_char %C" c
+    | Const_string (s, o) -> fprintf oc "Const_string (%S, %a)" s print_string_option o
+    | Const_float f       -> fprintf oc "Const_float %S" f
+    | Const_int32 n       -> fprintf oc "Const_int32 %ldl" n
+    | Const_int64 n       -> fprintf oc "Const_int64 %LdL" n
+    | Const_nativeint n   -> fprintf oc "Const_nativeint %ndn" n
 ;;
 
 let rec print_structured_constant oc sc =
@@ -99,7 +104,10 @@ let print_compilation_unit oc {
     (print_vlist 2
        (fun oc (ri, n) -> fprintf oc "(%a, %d)" print_reloc_info ri n))
     cu_reloc
-    (print_vlist 2 (fun oc (s, d) -> fprintf oc "(%S, %S)" s (Digest.to_hex d)))
+    (print_vlist 2 (fun oc (s, d) -> fprintf oc "(%S, %s)" s
+      (match d with
+      | None -> "None"
+      | Some d -> "Some \"" ^ Digest.to_hex d ^ "\"")))
     cu_imports (print_vlist 2 (fun oc s -> fprintf oc "%S" s)) cu_primitives
     cu_force_link cu_debug cu_debugsize;
   ignore (cu_reloc, cu_imports, cu_primitives);

@@ -18,17 +18,18 @@ open Data
 type request = Primitive | Global
     
 type globals =
-  | Glob of string array * elem array
+  | Glob  of string array * elem array
   | Reloc of Cmo.compilation_unit
       
 let string_of_constant c = match c with
-  | Const_int n -> Printf.sprintf "%d" n
-  | Const_char c -> Printf.sprintf "%C" c
-  | Const_string str -> string_of_string str
-  | Const_float str -> Printf.sprintf "%s" str
-  | Const_int32 n -> Printf.sprintf "%ldl" n
-  | Const_int64 n -> Printf.sprintf "%LdL" n
-  | Const_nativeint ni -> Printf.sprintf "%nx : nativeint" ni
+  | Const_int n               -> Printf.sprintf "%d" n
+  | Const_char c              -> Printf.sprintf "%C" c
+  | Const_string (s, None)    -> string_of_string s
+  | Const_string (s, Some s') -> Printf.sprintf "{%s|%s|%s}" s' (string_of_string s) s'
+  | Const_float str           -> Printf.sprintf "%s" str
+  | Const_int32 n             -> Printf.sprintf "%ldl" n
+  | Const_int64 n             -> Printf.sprintf "%LdL" n
+  | Const_nativeint ni        -> Printf.sprintf "%nx : nativeint" ni
     
 let string_of_structured_constant sc =
   let rec show depth sc =

@@ -106,6 +106,8 @@ and bc =
   | Stop
   | Event
   | Break
+  | Reraise
+  | Raisenotrace
 ;;
 
 let parse read =
@@ -276,6 +278,8 @@ let parse read =
       | 143 -> Stop
       | 144 -> Event
       | 145 -> Break
+      | 146 -> Reraise
+      | 147 -> Raisenotrace
       | _ -> failwith (Printf.sprintf "invalid opcode: %d" opcode)
   with End_of_file -> failwith "unexpected end of code section"
 ;;
@@ -428,6 +432,8 @@ let opcode_of_bc bc =
     | Stop -> 143
     | Event -> 144
     | Break -> 145
+    | Reraise -> 146
+    | Raisenotrace -> 147
 ;;
 
 let string_of_bc globname bc =
@@ -535,6 +541,8 @@ let string_of_bc globname bc =
     | Stop              -> Printf.sprintf "STOP"
     | Event             -> Printf.sprintf "EVENT"
     | Break             -> Printf.sprintf "BREAK"
+    | Reraise           -> Printf.sprintf "RERAISE"
+    | Raisenotrace      -> Printf.sprintf "RAISENOTRACE"
 ;;
 
 let print_instr global_info oc instr =
@@ -690,5 +698,7 @@ let name_of_opcode opcode =
     | 143 -> "STOP"
     | 144 -> "EVENT"
     | 145 -> "BREAK"
+    | 146 -> "RERAISE"
+    | 147 -> "RAISENOTRACE"
     | _ ->   failwith (Printf.sprintf "invalid opcode: %d" opcode)
 ;;

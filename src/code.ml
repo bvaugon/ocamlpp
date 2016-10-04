@@ -90,15 +90,15 @@ let parse_segment ic offset length =
   seek_in ic offset;
   let cpt = ref 0 in
   let nb_bc = length lsr 2 in
-  let read =
-    let buf4 = String.create 4 in
+  let next_word =
+    let buf4 = Bytes.create 4 in
     fun () ->
       incr cpt;
       if !cpt > nb_bc then raise End_of_file;
       really_input ic buf4 0 4;
       let res =
-        (int_of_char buf4.[0]) lor (int_of_char buf4.[1] lsl 8) lor
-          (int_of_char buf4.[2] lsl 16) lor (int_of_char buf4.[3] lsl 24)
+        (int_of_char (Bytes.get buf4 0)) lor (int_of_char (Bytes.get buf4 1) lsl 8) lor
+          (int_of_char (Bytes.get buf4 2) lsl 16) lor (int_of_char (Bytes.get buf4 3) lsl 24)
       in
       match Sys.word_size with
         | 32 -> res
@@ -110,7 +110,7 @@ word size is %d" ws)
   let rec f i acc =
     let addr = !cpt in
     match
-      try Some (Instr.parse read)
+      try Some (Instr.parse next_word)
       with End_of_file -> None
     with
       | Some bc ->
