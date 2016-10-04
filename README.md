@@ -1,4 +1,4 @@
 ocamlpp
 =======
 
-OCaml binary files pretty-printer
+OCaml bytecode files pretty-printer.
